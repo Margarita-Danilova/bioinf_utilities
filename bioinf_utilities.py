@@ -1,5 +1,5 @@
 import os
-from helpers.fastq import check_length, check_gc, check_quality
+from helpers.fastq import process_fastq
 from helpers.bio_files import get_description
 
 
@@ -29,25 +29,13 @@ def filter_fastq(
 
     with open(input_fastq, mode="r") as input_file:
         with open(output_path, mode="w") as output_file:
-            record = []
-
-            for line in input_file:
-                record.append(line)
-
-                if len(record) == 4:
-                    sequence = record[1].strip()
-                    quality = record[3].strip()
-
-                    if (
-                        check_length(sequence, length_bounds)
-                        and check_gc(sequence, gc_bounds)
-                        and check_quality(quality, quality_threshold)
-                    ):
-                        for line in record:
-                            output_file.write(line)
-
-                    record = []
-
+            process_fastq(
+                input_file,
+                output_file,
+                gc_bounds,
+                length_bounds,
+                quality_threshold
+            )
 
 def convert_multiline_fasta_to_oneline(
     input_fasta: str,

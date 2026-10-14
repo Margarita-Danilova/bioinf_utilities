@@ -76,3 +76,41 @@ def check_quality(quality: str, quality_threshold: float) -> bool:
         return True
     else:
         return False
+
+def process_fastq(
+    input_file,
+    output_file,
+    gc_bounds,
+    length_bounds,
+    quality_threshold: float
+) -> None:
+    """
+    Reads FASTQ records, applies filtering criteria and writes passing reads.
+
+    Arguments:
+    input_file: opened input FASTQ file
+    output_file: opened output FASTQ file
+    gc_bounds: GC content bounds in percent
+    length_bounds: read length bounds
+    quality_threshold: minimum mean read quality
+
+    Returns None.
+    """
+    record = []
+
+    for line in input_file:
+        record.append(line)
+
+        if len(record) == 4:
+            sequence = record[1].strip()
+            quality = record[3].strip()
+
+            if (
+                check_length(sequence, length_bounds)
+                and check_gc(sequence, gc_bounds)
+                and check_quality(quality, quality_threshold)
+            ):
+                for line in record:
+                    output_file.write(line)
+
+            record = []
